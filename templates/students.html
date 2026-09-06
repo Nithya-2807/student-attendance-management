@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Students | Attendance Management System</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+    <!-- Header -->
+
+    <header class="header">
+
+        <div class="logo">
+
+            <h1>Attendance Management System</h1>
+
+            <p>Student Attendance Portal</p>
+
+        </div>
+
+    </header>
+
+
+    <!-- Main Content -->
+
+    <main class="container students-page">
+
+        <!-- Page Heading -->
+
+        <div class="page-heading">
+
+            <div>
+
+                <h2>Student Management</h2>
+
+                <p>Manage student information and enrollment.</p>
+
+            </div>
+
+            <a href="/" class="back-button">
+                ← Home
+            </a>
+
+        </div>
+
+
+        <!-- Search and Filter -->
+
+        <section class="filter-card">
+
+            <div class="section-title">
+
+                <div>
+
+                    <h3>Search & Filter</h3>
+
+                    <p>Find students quickly.</p>
+
+                </div>
+
+            </div>
+
+
+            <form action="/students" method="GET">
+
+                <div class="filter-grid">
+
+                    <!-- Search -->
+
+                    <div class="form-group">
+
+                        <label for="search">
+                            Search Student
+                        </label>
+
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            value="{{ search }}"
+                            placeholder="Search by roll number or name"
+                        >
+
+                    </div>
+
+
+                    <!-- Department -->
+
+                    <div class="form-group">
+
+                        <label for="filter-dept">
+                            Department
+                        </label>
+
+                        <select id="filter-dept" name="dept">
+
+                            <option value="">
+                                All Departments
+                            </option>
+
+                            <option value="CSE"
+                                {% if filter_dept == "CSE" %}selected{% endif %}>
+                                CSE
+                            </option>
+
+                            <option value="ECE"
+                                {% if filter_dept == "ECE" %}selected{% endif %}>
+                                ECE
+                            </option>
+
+                            <option value="EEE"
+                                {% if filter_dept == "EEE" %}selected{% endif %}>
+                                EEE
+                            </option>
+
+                            <option value="MECH"
+                                {% if filter_dept == "MECH" %}selected{% endif %}>
+                                MECH
+                            </option>
+
+                            <option value="CIVIL"
+                                {% if filter_dept == "CIVIL" %}selected{% endif %}>
+                                CIVIL
+                            </option>
+
+                            <option value="CSM"
+                                {% if filter_dept == "CSM" %}selected{% endif %}>
+                                CSM
+                            </option>
+
+                            <option value="CSD"
+                                {% if filter_dept == "CSD" %}selected{% endif %}>
+                                CSD
+                            </option>
+
+                            <option value="IT"
+                                {% if filter_dept == "IT" %}selected{% endif %}>
+                                IT
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Section -->
+
+                    <div class="form-group">
+
+                        <label for="filter-section">
+                            Section
+                        </label>
+
+                        <select id="filter-section" name="section">
+
+                            <option value="">
+                                All Sections
+                            </option>
+
+                            <option value="A"
+                                {% if filter_section == "A" %}selected{% endif %}>
+                                A
+                            </option>
+
+                            <option value="B"
+                                {% if filter_section == "B" %}selected{% endif %}>
+                                B
+                            </option>
+
+                            <option value="C"
+                                {% if filter_section == "C" %}selected{% endif %}>
+                                C
+                            </option>
+
+                            <option value="D"
+                                {% if filter_section == "D" %}selected{% endif %}>
+                                D
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Buttons -->
+
+                    <div class="filter-button-container">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+                            Apply Filters
+                        </button>
+
+                        <a
+                            href="/students"
+                            class="secondary-button">
+                            Reset
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- Student List -->
+
+        <section class="table-card">
+
+            <div class="table-header">
+
+                <div>
+
+                    <h3>Student List</h3>
+
+                    <p>
+                        Registered students
+                    </p>
+
+                </div>
+
+
+                <div class="student-count">
+
+                    {{ students|length }} Students
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Roll No.</th>
+
+                            <th>Student Name</th>
+
+                            <th>Department</th>
+
+                            <th>Section</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                        <tr>
+
+                            <td>
+                                {{ student.roll_no }}
+                            </td>
+
+                            <td>
+                                {{ student.name }}
+                            </td>
+
+                            <td>
+                                {{ student.dept }}
+                            </td>
+
+                            <td>
+                                {{ student.section }}
+                            </td>
+
+                            <td>
+
+                                <!-- Edit - will be connected next -->
+
+    <a href="{{ url_for('edit_student', roll_no=student['roll_no']) }}"
+   class="secondary-button">
+    Edit
+</a>
+
+
+                                <!-- Delete -->
+
+                                <form
+                                    action="{{ url_for('delete_student', roll_no=student.roll_no) }}"
+                                    method="POST"
+                                    style="display: inline;">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td colspan="5" style="text-align: center;">
+
+                                No students found.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- Empty State -->
+
+        {% if not students %}
+
+        <section class="empty-state">
+
+            <div class="empty-icon">
+                🎓
+            </div>
+
+            <h3>No students found</h3>
+
+            <p>
+                Students matching your search or filter
+                will appear here.
+            </p>
+
+        </section>
+
+        {% endif %}
+
+        <!-- Add Student -->
+
+        <section class="form-card add-student-card">
+
+            <div class="add-section-label">
+                ADD NEW STUDENT
+            </div>
+
+            <div class="section-title">
+
+                <div>
+
+                    <h3>Add Student</h3>
+
+                    <p>Enter the details of a new student.</p>
+
+                </div>
+
+            </div>
+
+
+            <form action="/students/add" method="POST">
+
+                <div class="form-group">
+
+                    <label>Roll No</label>
+
+                    <input
+                        type="text"
+                        name="roll_no"
+                        placeholder="Enter roll number"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Student Name</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter student name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <select name="dept" required>
+
+                        <option value="">Select Department</option>
+
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="MECH">MECH</option>
+                        <option value="CIVIL">CIVIL</option>
+                        <option value="CSM">CSM</option>
+                        <option value="CSD">CSD</option>
+                        <option value="IT">IT</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Section</label>
+
+                    <select name="section" required>
+
+                        <option value="">Select Section</option>
+
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+
+                    </select>
+
+                </div>
+
+
+                <button type="submit" class="btn btn-primary">
+                    Add Student
+                </button>
+
+            </form>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <p>
+            Student Attendance Management System
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

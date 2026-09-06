@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Student Attendance Management System</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+```
+
+</head>
+
+<body>
+
+```
+<header class="header">
+    <div class="logo">
+        <h1>Attendance Management System</h1>
+        <p>Student Attendance Portal</p>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="welcome">
+        <h2>Welcome</h2>
+        <p>
+            Manage students, faculty, classes and attendance
+            from one place.
+        </p>
+    </section>
+
+    <section class="modules">
+
+        <a href="/students" class="module-card">
+            <div class="icon">🎓</div>
+            <h3>Students</h3>
+            <p>Add, view and search student details.</p>
+        </a>
+
+        <a href="/faculty" class="module-card">
+            <div class="icon">👨‍🏫</div>
+            <h3>Faculty</h3>
+            <p>Manage faculty members and assigned classes.</p>
+        </a>
+
+        <a href="/classes" class="module-card">
+            <div class="icon">🕐</div>
+            <h3>Classes</h3>
+            <p>Configure periods, subjects and class types.</p>
+        </a>
+
+        <a href="/attendance" class="module-card">
+            <div class="icon">📝</div>
+            <h3>Mark Attendance</h3>
+            <p>Record attendance for selected classes.</p>
+        </a>
+
+        <a href="/reports" class="module-card">
+            <div class="icon">📊</div>
+            <h3>Attendance Reports</h3>
+            <p>View attendance records and percentages.</p>
+        </a>
+
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>Student Attendance Management System</p>
+</footer>
+```
+
+</body>
+
+</html>

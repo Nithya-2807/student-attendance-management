@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Student | Attendance Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+
+        <div>
+            <h1>Edit Student</h1>
+            <p>Update the student's details.</p>
+        </div>
+
+        <a href="{{ url_for('students') }}"
+           class="back-button">
+            ← Students
+        </a>
+
+    </div>
+
+
+    <!-- EDIT FORM -->
+    <div class="form-card">
+
+        <form method="POST"
+              action="{{ url_for('edit_student', roll_no=student['roll_no']) }}">
+
+            <div class="form-row">
+
+                <!-- ROLL NUMBER -->
+                <div class="form-group">
+
+                    <label>Roll No</label>
+
+                    <input
+                        type="text"
+                        value="{{ student['roll_no'] }}"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- NAME -->
+                <div class="form-group">
+
+                    <label>Name</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ student['name'] }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <!-- DEPARTMENT -->
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <select name="dept" required>
+
+                        {% for dept in departments %}
+
+                        <option
+                            value="{{ dept }}"
+                            {% if student['dept'] == dept %}
+                            selected
+                            {% endif %}
+                        >
+                            {{ dept }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- SECTION -->
+                <div class="form-group">
+
+                    <label>Section</label>
+
+                    <select name="section" required>
+
+                        {% for section in sections %}
+
+                        <option
+                            value="{{ section }}"
+                            {% if student['section'] == section %}
+                            selected
+                            {% endif %}
+                        >
+                            Section {{ section }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+            <div class="form-actions">
+
+                <a href="{{ url_for('students') }}"
+                   class="secondary-button">
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="primary-button">
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

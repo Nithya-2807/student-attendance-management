@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Faculty Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="page-container faculty-page">
+
+    <!-- =========================
+         PAGE HEADER
+    ========================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Faculty Management</h1>
+
+            <p>
+                Add, search, edit and delete faculty members.
+            </p>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="back-button">
+            ← Home
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         SEARCH FACULTY
+    ========================== -->
+
+    <div class="form-card faculty-search-card">
+
+        <h2>Search Faculty</h2>
+
+        <p class="form-description">
+            Find faculty members using their ID or name.
+        </p>
+
+        <form
+            action="{{ url_for('faculty') }}"
+            method="GET"
+        >
+
+            <div class="search-row">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search by Faculty ID or Name"
+                >
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Search
+                </button>
+
+                <a
+                    href="{{ url_for('faculty') }}"
+                    class="secondary-button"
+                >
+                    View All
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================
+         FACULTY LIST
+    ========================== -->
+
+    <div class="table-card faculty-list-card">
+
+        <div class="table-header">
+
+            <div>
+                <h2>Faculty List</h2>
+
+                <p>
+                    Faculty members currently registered
+                </p>
+            </div>
+
+            <span class="count-badge">
+                {{ faculty|length }} Faculty
+            </span>
+
+        </div>
+
+
+        {% if faculty %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Faculty ID</th>
+
+                        <th>Name</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for faculty_member in faculty %}
+
+                    <tr>
+
+                        <!-- FACULTY ID -->
+                        <td>
+
+                            <strong>
+                                {{ faculty_member.faculty_id }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- NAME -->
+                        <td>
+
+                            {{ faculty_member.name }}
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+                        <td class="actions">
+
+                            <a
+                                href="{{ url_for(
+                                    'edit_faculty',
+                                    faculty_id=faculty_member.faculty_id
+                                ) }}"
+                                class="edit-button"
+                            >
+                                Edit
+                            </a>
+
+
+                            <form
+                                action="{{ url_for(
+                                    'delete_faculty',
+                                    faculty_id=faculty_member.faculty_id
+                                ) }}"
+                                method="POST"
+                                style="display:inline;"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="delete-button"
+                                    onclick="return confirm(
+                                        'Delete this faculty member?'
+                                    );"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <!-- EMPTY STATE -->
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                📚
+            </div>
+
+            <h3>No Faculty Found</h3>
+
+            <p>
+                No faculty members match your search.
+                Add a faculty member using the form below.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         ADD FACULTY
+    ========================== -->
+
+    <div class="form-card add-faculty-card">
+
+        <div class="add-section-label">
+            ADD NEW FACULTY
+        </div>
+
+        <h2>Add Faculty</h2>
+
+        <p class="form-description">
+            Enter the details of a new faculty member.
+        </p>
+
+
+        <form
+            action="{{ url_for('add_faculty') }}"
+            method="POST"
+        >
+
+            <div class="form-row">
+
+                <!-- FACULTY ID -->
+                <div class="form-group">
+
+                    <label>Faculty ID</label>
+
+                    <input
+                        type="text"
+                        name="faculty_id"
+                        placeholder="Enter Faculty ID"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- NAME -->
+                <div class="form-group">
+
+                    <label>Name</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter Faculty Name"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- SUBMIT -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    + Add Faculty
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

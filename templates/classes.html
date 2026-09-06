@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Classes | Attendance Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="page-container classes-page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <h1>Classes & Timetable</h1>
+            <p>Configure classes department, section and date wise.</p>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="back-button">
+            ← Home
+        </a>
+    </div>
+
+
+    <!-- =========================
+         VIEW TIMETABLE
+    ========================== -->
+
+    <div class="form-card timetable-filter-card">
+
+        <h2>View Timetable</h2>
+
+        <form method="GET"
+              action="{{ url_for('classes') }}">
+
+            <div class="form-row">
+
+                <!-- Department -->
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <select name="department" required>
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        {% for dept in departments %}
+
+                        <option value="{{ dept }}"
+                            {% if selected_department == dept %}
+                                selected
+                            {% endif %}>
+
+                            {{ dept }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Section -->
+                <div class="form-group">
+
+                    <label>Section</label>
+
+                    <select name="section" required>
+
+                        <option value="">
+                            Select Section
+                        </option>
+
+                        {% for section in sections %}
+
+                        <option value="{{ section }}"
+                            {% if selected_section == section %}
+                                selected
+                            {% endif %}>
+
+                            Section {{ section }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Date -->
+                <div class="form-group">
+
+                    <label>Date</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ selected_date }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    View Timetable
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================
+         TIMETABLE
+    ========================== -->
+
+    {% if selected_department and selected_section and selected_date %}
+
+    <div class="table-card timetable-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    {{ selected_department }}
+                    -
+                    Section {{ selected_section }}
+                </h2>
+
+                <p>
+                    Timetable for {{ selected_date }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Period</th>
+
+                        <th>Class Type</th>
+
+                        <th>Subject</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in timetable %}
+
+                    <tr>
+
+                        <!-- Period -->
+                        <td>
+
+                            <strong>
+                                Period {{ item.period }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- Class Type -->
+                        <td>
+
+                            <span class="class-type-badge
+                                {% if item.class_type == 'Regular' %}
+                                    regular
+                                {% elif item.class_type == 'Adjusted' %}
+                                    adjusted
+                                {% elif item.class_type == 'Leisure' %}
+                                    leisure
+                                {% else %}
+                                    not-configured
+                                {% endif %}
+                            ">
+
+                                {{ item.class_type }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- Subject -->
+                        <td>
+
+                            {% if item.subject %}
+
+                                {{ item.subject }}
+
+                            {% else %}
+
+                                <span class="empty-value">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Action -->
+                        <td>
+
+                            {% if item.class_type != "Not Configured" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'delete_class',
+                                    department=selected_department,
+                                    section=selected_section,
+                                    date=selected_date,
+                                    period=item.period
+                                ) }}"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="secondary-button">
+
+                                    Reset
+
+                                </button>
+
+                            </form>
+
+                            {% else %}
+
+                                <span class="empty-value">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         CONFIGURE / ADD CLASS
+    ========================== -->
+
+    <div class="form-card add-class-card">
+
+        <div class="add-section-label">
+            ADD NEW CLASS
+        </div>
+
+        <h2>Configure Class</h2>
+
+        <p class="form-description">
+            Add or update a class for a specific department,
+            section, date and period.
+        </p>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('save_class') }}"
+        >
+
+            <!-- Department + Section -->
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <select
+                        name="department"
+                        required
+                    >
+
+                        <option value="">
+                            Select Department
+                        </option>
+
+                        {% for dept in departments %}
+
+                        <option value="{{ dept }}"
+                            {% if selected_department == dept %}
+                                selected
+                            {% endif %}>
+
+                            {{ dept }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Section</label>
+
+                    <select
+                        name="section"
+                        required
+                    >
+
+                        <option value="">
+                            Select Section
+                        </option>
+
+                        {% for section in sections %}
+
+                        <option value="{{ section }}"
+                            {% if selected_section == section %}
+                                selected
+                            {% endif %}>
+
+                            Section {{ section }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- Date + Period -->
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Date</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ selected_date }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Period</label>
+
+                    <select
+                        name="period"
+                        required
+                    >
+
+                        <option value="">
+                            Select Period
+                        </option>
+
+                        {% for period in range(1, 9) %}
+
+                        <option value="{{ period }}">
+
+                            Period {{ period }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- Class Type + Subject -->
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Class Type</label>
+
+                    <select
+                        name="class_type"
+                        required
+                    >
+
+                        <option value="">
+                            Select Class Type
+                        </option>
+
+                        <option value="Regular">
+                            Regular
+                        </option>
+
+                        <option value="Adjusted">
+                            Adjusted
+                        </option>
+
+                        <option value="Leisure">
+                            Leisure
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>Subject</label>
+
+                    <input
+                        type="text"
+                        name="subject"
+                        placeholder="Enter subject"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- Submit -->
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    Save Class
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

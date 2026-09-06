@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Reports</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="page-container">
+
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Attendance Reports</h1>
+
+            <p>
+                View daily attendance and overall attendance status.
+            </p>
+
+        </div>
+
+        <a href="/" class="back-button">
+            ← Home
+        </a>
+
+    </div>
+
+
+
+    <!-- FILTERS -->
+
+    <div class="form-card">
+
+        <h2>Report Filters</h2>
+
+        <form action="/reports" method="GET">
+
+            <div class="form-row">
+
+
+                <!-- DEPARTMENT -->
+
+                <div class="form-group">
+
+                    <label>Department</label>
+
+                    <select name="department">
+
+                        <option value="">
+                            All Departments
+                        </option>
+
+                        {% for department in departments %}
+
+                        <option
+                            value="{{ department }}"
+                            {% if selected_department == department %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ department }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- SECTION -->
+
+                <div class="form-group">
+
+                    <label>Section</label>
+
+                    <select name="section">
+
+                        <option value="">
+                            All Sections
+                        </option>
+
+                        {% for section in sections %}
+
+                        <option
+                            value="{{ section }}"
+                            {% if selected_section == section %}
+                                selected
+                            {% endif %}
+                        >
+                            Section {{ section }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- DATE -->
+
+                <div class="form-group">
+
+                    <label>Date</label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        value="{{ selected_date }}"
+                    >
+
+                </div>
+
+
+
+                <!-- BUTTON -->
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Generate Report
+                </button>
+
+
+
+                <!-- RESET -->
+
+                <a
+                    href="/reports"
+                    class="secondary-button"
+                >
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- REPORT SUMMARY -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <h2>
+                {% if selected_date %}
+                    Attendance for {{ selected_date }}
+                {% else %}
+                    Overall Attendance
+                {% endif %}
+            </h2>
+
+            <span class="count-badge">
+                {{ report|length }} Students
+            </span>
+
+        </div>
+
+
+
+        <!-- REPORT TABLE -->
+
+        <div style="overflow-x: auto;">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Roll No</th>
+
+                        <th>Name</th>
+
+                        <th>Department</th>
+
+                        <th>Section</th>
+
+                        {% for period in range(1, 9) %}
+
+                        <th>P{{ period }}</th>
+
+                        {% endfor %}
+
+                        <th>Total</th>
+
+                        <th>Percentage</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in report %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ student.roll_no }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ student.name }}
+                        </td>
+
+                        <td>
+                            {{ student.dept }}
+                        </td>
+
+                        <td>
+                            {{ student.section }}
+                        </td>
+
+
+                        {% for period in range(1, 9) %}
+
+                        <td>
+
+                            {% set period_value =
+                                student.period_status[period|string]
+                            %}
+
+                            {% if period_value == "P" %}
+
+                                <span class="status-badge">
+                                    P
+                                </span>
+
+                            {% elif period_value == "A" %}
+
+                                <span class="status-badge">
+                                    A
+                                </span>
+
+                            {% else %}
+
+                                <span>-</span>
+
+                            {% endif %}
+
+                        </td>
+
+                        {% endfor %}
+
+
+                        <td>
+                            <strong>
+                                {{ student.total }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ student.percentage }}%
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if student.status == "Low Attendance" %}
+
+                                <span class="status-badge">
+                                    Low Attendance
+                                </span>
+
+                            {% elif student.status == "Good Attendance" %}
+
+                                <span class="status-badge">
+                                    Good Attendance
+                                </span>
+
+                            {% else %}
+
+                                <span>
+                                    No Attendance
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+
+                    {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="15"
+                            style="text-align: center;"
+                        >
+                            No students found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ATTENDANCE RULES -->
+
+    <div class="form-card">
+
+        <h2>Attendance Calculation</h2>
+
+        <ul>
+
+            <li>
+                <strong>P</strong> means Present.
+            </li>
+
+            <li>
+                <strong>A</strong> means Absent.
+            </li>
+
+            <li>
+                <strong>-</strong> means no attendance was recorded
+                for that period.
+            </li>
+
+            <li>
+                Leisure periods are not counted.
+            </li>
+
+            <li>
+                If no class was taken, no attendance record is created,
+                so that period is not counted.
+            </li>
+
+            <li>
+                Adjusted classes count when attendance is recorded.
+            </li>
+
+            <li>
+                Attendance percentage =
+                Present ÷ Conducted × 100.
+            </li>
+
+            <li>
+                Attendance below <strong>75%</strong> is marked
+                as Low Attendance.
+            </li>
+
+        </ul>
+
+    </div>
+
+
+</div>
+
+</body>
+
+</html>

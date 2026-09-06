@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance | Attendance Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1>Attendance Management System</h1>
+            <p>Student Attendance Portal</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-heading">
+            <div>
+                <h2>Mark Attendance</h2>
+                <p>Record the classes conducted and mark student attendance for the selected date.</p>
+            </div>
+            <a href="{{ url_for('home') }}" class="back-button">← Home</a>
+        </div>
+
+        {% if error %}
+        <div class="form-card" style="margin-bottom:18px;">
+            <strong>{{ error }}</strong>
+        </div>
+        {% endif %}
+
+        <!-- STEP 1 -->
+        <section class="form-card">
+            <div class="section-title">
+                <div>
+                    <h3>1. Record Period Details</h3>
+                    <p>All 8 periods are available. Select the periods you want to record and enter the subject or status.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('setup_attendance') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="attendance-dept">Department</label>
+                        <select id="attendance-dept" name="department" required>
+                            <option value="">Select Department</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}" {% if selected_department == dept %}selected{% endif %}>{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attendance-section">Section</label>
+                        <select id="attendance-section" name="section" required>
+                            <option value="">Select Section</option>
+                            {% for sec in sections %}
+                            <option value="{{ sec }}" {% if selected_section == sec %}selected{% endif %}>Section {{ sec }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attendance-date">Date</label>
+                        <input id="attendance-date" type="date" name="date" value="{{ selected_date }}" required>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto; margin-top:18px;">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Select</th>
+                                <th>Subject / Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in period_entries %}
+                            <tr>
+                                <td><strong>P{{ item.period }}</strong></td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="periods" value="{{ item.period }}" {% if item.period in selected_periods %}checked{% endif %}>
+                                        Select
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="class_entry_{{ item.period }}" value="{{ item.value }}" placeholder="Subject / Leisure / Not Conducted">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="input-help" style="margin-top:14px;">
+                    <strong>Rules:</strong> Enter a subject → Regular class. Enter <strong>Leisure</strong> → Leisure. Enter <strong>Not Conducted</strong> → Not Conducted. Only Regular periods require P/A attendance.
+                </p>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('attendance') }}" class="secondary-button">Clear</a>
+                    <button type="submit" class="primary-button">Continue to Attendance →</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- STEP 2 -->
+        {% if students and regular_periods %}
+        <section class="attendance-context">
+            <div>
+                <span class="context-label">ATTENDANCE FOR</span>
+                <h3>{{ selected_department }} - Section {{ selected_section }}</h3>
+            </div>
+            <div class="context-details">
+                <div>
+                    <span>Date</span>
+                    <strong>{{ selected_date }}</strong>
+                </div>
+                <div>
+                    <span>Regular Periods</span>
+                    <strong>{% for p in regular_periods %}P{{ p }}{% if not loop.last %}, {% endif %}{% endfor %}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-card">
+            <div class="table-header">
+                <div>
+                    <h3>2. Student Attendance</h3>
+                    <p>Mark each student as Present or Absent for every regular period.</p>
+                </div>
+                <div class="attendance-info">
+                    <span class="present-indicator">P</span> Present
+                    <span class="absent-indicator">A</span> Absent
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('mark_attendance') }}">
+                <input type="hidden" name="department" value="{{ selected_department }}">
+                <input type="hidden" name="section" value="{{ selected_section }}">
+                <input type="hidden" name="date" value="{{ selected_date }}">
+                {% for period in regular_periods %}
+                <input type="hidden" name="periods" value="{{ period }}">
+                {% endfor %}
+
+                <div class="table-wrapper">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Roll No.</th>
+                                <th>Student Name</th>
+                                {% for period in regular_periods %}
+                                <th>P{{ period }}<small>{{ period_subjects[period] }}</small></th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td>{{ student.roll_no }}</td>
+                                <td>{{ student.name }}</td>
+                                {% for period in regular_periods %}
+                                <td>
+                                    <div class="attendance-choice">
+                                        <label>
+                                            <input type="radio" name="attendance_{{ student.roll_no }}_{{ period }}" value="P" checked>
+                                            <span class="present-option">P</span>
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="attendance_{{ student.roll_no }}_{{ period }}" value="A">
+                                            <span class="absent-option">A</span>
+                                        </label>
+                                    </div>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="attendance-submit">
+                    <div>
+                        <strong>Ready to post attendance?</strong>
+                        <p>Please verify all students before submitting.</p>
+                    </div>
+                    <button type="submit" class="primary-button">✓ Post Attendance</button>
+                </div>
+            </form>
+        </section>
+        {% elif selected_department and selected_section and selected_date and selected_periods %}
+        <section class="table-card">
+            <p>No students found for {{ selected_department }} - Section {{ selected_section }}.</p>
+        </section>
+        {% endif %}
+
+        <section class="attendance-rules">
+            <h3>Attendance Rules</h3>
+            <div class="rules-grid">
+                <div class="rule">
+                    <span class="rule-icon present-rule">P</span>
+                    <div><strong>Present</strong><p>Counts towards attendance.</p></div>
+                </div>
+                <div class="rule">
+                    <span class="rule-icon absent-rule">A</span>
+                    <div><strong>Absent</strong><p>Counts as a conducted class.</p></div>
+                </div>
+                <div class="rule">
+                    <span class="rule-icon leisure-rule">—</span>
+                    <div><strong>Leisure</strong><p>Does not count towards attendance.</p></div>
+                </div>
+                <div class="rule">
+                    <span class="rule-icon adjusted-rule">+</span>
+                    <div><strong>Adjusted Class</strong><p>Existing adjusted classes continue to count as conducted classes.</p></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Student Attendance Management System</p>
+    </footer>
+</body>
+</html>
